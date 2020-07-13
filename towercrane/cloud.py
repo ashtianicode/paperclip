@@ -2,7 +2,7 @@ import logging
 import os
 import boto3
 from botocore.exceptions import ClientError
-from progress import ProgressPercentage
+from .progress import ProgressPercentage
 from os.path import getsize
 
 class S3():
@@ -16,9 +16,18 @@ class S3():
         self.region = region
         self.s3_client = boto3.client('s3', region_name=region)
         self.s3_res = boto3.resource('s3')
+        # if not self.check_client(self.s3_client):
+        #     print("Can not connect to AWS S3 client. Token might be expired.")
+            # def aws_auth(self):
+            #     os.system("cat aws.cred > ~/.aws/credentials")
+
+    # def check_client(self,client):
+    #     print(hasattr(client,'__class__'))
+    #     if hasattr(client,'__class__'):
+    #         return True
+    #     else:
+    #         return False
         
-    # def aws_auth(self):
-    #     os.system("cat aws.cred > ~/.aws/credentials")
 
     def list_buckets(self):
         response = self.s3_client.list_buckets()

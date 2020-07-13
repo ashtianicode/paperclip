@@ -5,7 +5,7 @@ from pathlib import Path
 
 class DB():
     def __init__(self):
-        self.dbpath = str(Path.home()) + "/paperclip.db"
+        self.dbpath = str(Path.home()) + "/towercrane.db"
         self.connect()
         
     def connect(self):
@@ -23,20 +23,20 @@ class DB():
         r = self.c.execute("SELECT name FROM sqlite_master WHERE type='table'")
         tables = [t[0] for t in r.fetchall()]
         
-        if "paperclip_config" not in tables:
-            self.c.execute(""" CREATE TABLE paperclip_config (
+        if "towercrane_config" not in tables:
+            self.c.execute(""" CREATE TABLE towercrane_config (
                                                     cloudtype text 
                                                     )
                                                            
                             """)
-            self.c.execute("INSERT INTO paperclip_config (cloudtype) VALUES ('notset') ")
+            self.c.execute("INSERT INTO towercrane_config (cloudtype) VALUES ('notset') ")
             self.conn.commit()
     
         
         
         
-        if "paperclip_files" not in tables:
-            self.c.execute(""" CREATE TABLE paperclip_files (
+        if "towercrane_files" not in tables:
+            self.c.execute(""" CREATE TABLE towercrane_files (
                                                     filekey text ,
                                                     filename text,
                                                     filesize integer,
@@ -49,8 +49,8 @@ class DB():
                                                            
                             """)
             self.conn.commit()
-        if "paperclip_projects" not in tables:
-            self.c.execute(""" CREATE TABLE paperclip_projects (
+        if "towercrane_projects" not in tables:
+            self.c.execute(""" CREATE TABLE towercrane_projects (
                                                     projectkey text ,
                                                     projectname text,
                                                     dirpath text,
@@ -65,13 +65,13 @@ class DB():
     def get_mother_config(self):
         # get config and process it right here 
         config = {}
-        config_from_db = self.c.execute("SELECT * from paperclip_config").fetchall()
+        config_from_db = self.c.execute("SELECT * from towercrane_config").fetchall()
         config["cloudtype"] = config_from_db[0][0]
         return config
         
     def set_mother_config(self,key,value):
         # set mother config 
-        self.c.execute(f"UPDATE paperclip_config SET {key}='{value}' WHERE 1 ")
+        self.c.execute(f"UPDATE towercrane_config SET {key}='{value}' WHERE 1 ")
         self.conn.commit()
         
     
@@ -96,8 +96,8 @@ class DB():
 
 
     def create_project(self,project_name,project_dir,projectkey):
-        if not self.check_existance(project_dir,"dirpath","paperclip_projects"):
-            self.c.execute(f"""INSERT INTO paperclip_projects (projectkey,projectname,dirpath,zippath,state) 
+        if not self.check_existance(project_dir,"dirpath","towercrane_projects"):
+            self.c.execute(f"""INSERT INTO towercrane_projects (projectkey,projectname,dirpath,zippath,state) 
                                VALUES (\"{projectkey}\", \"{project_name}\","{project_dir}","", \"only_local\" )
                             """)
             self.conn.commit()
@@ -108,10 +108,10 @@ class DB():
     
     def create_file(self,file_meta,project_name,filekey,projectkey):
         # check if file exists
-        if not self.check_existance(file_meta["abspath"],"abspath","paperclip_files"):
+        if not self.check_existance(file_meta["abspath"],"abspath","towercrane_files"):
             object_name = project_name
             state = "upload" # "only_local"
-            self.c.execute(f"""INSERT INTO paperclip_files (filekey,filename,filesize,abspath,dirpath,objectname,projectname,projectkey,state) 
+            self.c.execute(f"""INSERT INTO towercrane_files (filekey,filename,filesize,abspath,dirpath,objectname,projectname,projectkey,state) 
                                VALUES ('{filekey}','{file_meta["filename"]}','{file_meta["filesize"]}','{file_meta["abspath"]}','{file_meta["dirpath"]}', '{object_name}' ,'{project_name}', '{projectkey}','{state}' )
                             """)
             self.conn.commit()
@@ -128,20 +128,20 @@ class DB():
     """
     
     def get_project(self,projectkey):
-        project = self.c.execute(f"SELECT * from paperclip_projects WHERE projectkey='{projectkey}' ").fetchall()
-        files = self.c.execute(f"SELECT * from paperclip_files WHERE projectkey='{projectkey}' ").fetchall()
+        project = self.c.execute(f"SELECT * from towercrane_projects WHERE projectkey='{projectkey}' ").fetchall()
+        files = self.c.execute(f"SELECT * from towercrane_files WHERE projectkey='{projectkey}' ").fetchall()
         return project , files
     
     
     def get_files_with_state(self,project_name,state):
-        results = self.c.execute(f"SELECT * from paperclip_files WHERE state='{state}' AND projectname='{project_name}' ").fetchall()
+        results = self.c.execute(f"SELECT * from towercrane_files WHERE state='{state}' AND projectname='{project_name}' ").fetchall()
         return results
         
     def change_state_file(self,files,state):
         filekeys = [f[0] for f in files]
         for filekey in filekeys:
             results = self.c.execute(f"""
-                                        UPDATE paperclip_files 
+                                        UPDATE towercrane_files 
                                         SET state="{state}"
                                         WHERE filekey = "{filekey}" 
                                     """)

@@ -1,5 +1,9 @@
 __pycache__/
 aws.cred
-paperclip.egg-info/
+towercrane.egg-info/
+dist/
+build/
+.vscode/
+.venv/
 notes.txt
 

@@ -8,7 +8,7 @@ import time
 import zipfile
 from tabulate import tabulate
 
-bucket_name =  "paperclip-projects"
+bucket_name =  "towercrane-projects"
 
 """
 Config tools 
@@ -21,21 +21,21 @@ def id_generator(length):
     return "".join(random.choice(string.ascii_letters + string.digits) for _ in range(length))
 
 def read_config(project_dir):
-    PaperclipConfig = {"project_name":"",
+    TowercraneConfig = {"project_name":"",
                        "projectkey":"",
                        "publicurl":""}
-    with open(os.path.join(project_dir,"paperclip"),"r") as f:
+    with open(os.path.join(project_dir,"towercrane"),"r") as f:
         for line in f.readlines():
             configKey = line.strip().split(":")[0]
             configValue = line.strip().split(":")[1]
-            PaperclipConfig[configKey] = configValue
-    return PaperclipConfig
+            TowercraneConfig[configKey] = configValue
+    return TowercraneConfig
     
-def write_config(project_dir,PaperclipConfig):
-    with open(os.path.join(project_dir,"paperclip"),"w") as f:
-            f.write("project_name:"+PaperclipConfig["project_name"]+"\n"+
-                    "projectkey:"+PaperclipConfig["projectkey"]+"\n"+
-                    "publicurl:"+PaperclipConfig["publicurl"]
+def write_config(project_dir,TowercraneConfig):
+    with open(os.path.join(project_dir,"towercrane"),"w") as f:
+            f.write("project_name:"+TowercraneConfig["project_name"]+"\n"+
+                    "projectkey:"+TowercraneConfig["projectkey"]+"\n"+
+                    "publicurl:"+TowercraneConfig["publicurl"]
                     )
 
 
@@ -61,23 +61,23 @@ class Tools():
     """
     def init_project(self,project_name,project_dir):
         """
-        checks if it can find a paperclip file. 
+        checks if it can find a towercrane file. 
         if not, creates one and creates the project too.
         """
         projectkey = id_generator(10)
-        if "paperclip" not in os.listdir(project_dir):
+        if "towercrane" not in os.listdir(project_dir):
             print(f'Initializing project:"{project_name}" with projectkey: "{projectkey}" ')
-            self.PaperclipConfig = {"project_name":project_name,
+            self.TowercraneConfig = {"project_name":project_name,
                                     "projectkey":projectkey,
                                     "publicurl":""
                                     }
-            write_config(project_dir,self.PaperclipConfig)
+            write_config(project_dir,self.TowercraneConfig)
             project_insert_report = self.db.create_project(project_name,project_dir,projectkey)
             print(project_insert_report)
         
-        elif "paperclip" in os.listdir(project_dir):
-           self.PaperclipConfig = read_config(project_dir)
-           print(f'project:"{self.PaperclipConfig["project_name"]}" with projectkey: "{self.PaperclipConfig["projectkey"]}" Already Exists')
+        elif "towercrane" in os.listdir(project_dir):
+           self.TowercraneConfig = read_config(project_dir)
+           print(f'project:"{self.TowercraneConfig["project_name"]}" with projectkey: "{self.TowercraneConfig["projectkey"]}" Already Exists')
            
 
         
@@ -108,7 +108,7 @@ class Tools():
         if self.localfiles:
             for k,file_meta in self.localfiles.items():
                 filekey = id_generator(20)
-                projectkey = self.PaperclipConfig["projectkey"]
+                projectkey = self.TowercraneConfig["projectkey"]
                 file_insert_report = self.db.create_file(file_meta,project_name,filekey,projectkey)
                 print(file_insert_report)
 
@@ -149,20 +149,20 @@ class Tools():
         self.cloud_client.upload_file(bucket_name,zippath,project_name,object_name)
         
         
-        # get public url of zip file, and then read and write the public url to paperclip file
+        # get public url of zip file, and then read and write the public url to towercrane file
         publicurl = self.cloud_client.get_public_url(bucket_name,object_name)
-        self.PaperclipConfig = read_config(project_dir)
-        self.PaperclipConfig["publicurl"] = publicurl 
-        write_config(project_dir,self.PaperclipConfig)
-        print(self.PaperclipConfig["publicurl"])
+        self.TowercraneConfig = read_config(project_dir)
+        self.TowercraneConfig["publicurl"] = publicurl 
+        write_config(project_dir,self.TowercraneConfig)
+        print(self.TowercraneConfig["publicurl"])
         
         
         
-        # def write_config(project_dir,PaperclipConfig):
-        # with open(os.path.join(project_dir,"paperclip"),"w") as f:
-        #     f.write("project_name:"+PaperclipConfig["project_name"]+"\n"+
-        #             "projectkey:"+PaperclipConfig["projectkey"]+"\n"+
-        #             "publicurl:"+PaperclipConfig["publicurl"]
+        # def write_config(project_dir,TowercraneConfig):
+        # with open(os.path.join(project_dir,"towercrane"),"w") as f:
+        #     f.write("project_name:"+TowercraneConfig["project_name"]+"\n"+
+        #             "projectkey:"+TowercraneConfig["projectkey"]+"\n"+
+        #             "publicurl:"+TowercraneConfig["publicurl"]
         #             )
 
 
@@ -174,7 +174,7 @@ class Tools():
             try:
                 
                 os.remove(abspath)
-                os.system(f"touch {os.path.dirname(abspath)}/{filekey}_{os.path.basename(abspath)}.paperclip")
+                os.system(f"touch {os.path.dirname(abspath)}/{filekey}_{os.path.basename(abspath)}.towercrane")
                 print("removed :"+ abspath)
                 time.sleep(0.5)
                 
@@ -207,16 +207,16 @@ class Tools():
     
         
         """
-        It walks in the whole project directory and finds .paperfile files and replaces them with the files with same filekey 
+        It walks in the whole project directory and finds .towercrane files and replaces them with the files with same filekey 
         which were extracted from the zip file.
         """
         os.chdir(project_dir)
         os.walk(project_dir)
         for dirpath, dirnames, filenames in os.walk(project_dir, topdown=True):
             for filename in filenames:
-                if ".paperclip" in filename:
+                if ".towercrane" in filename:
                     filekey = filename.split("_")[0]
-                    original_filename = "".join(filename.strip(".paperclip").split("_")[1:])
+                    original_filename = "".join(filename.strip(".towercrane").split("_")[1:])
                     for zip_file in os.listdir(unzip_dir):
                         if filekey in zip_file:
                             print(f"cp {os.path.join(project_dir,unzip_dir,zip_file)}  {os.path.join(dirpath,original_filename)}")
@@ -229,18 +229,18 @@ class Tools():
     
     def state(self,project_dir):
         """
-        if paperclip file exists, gets the project and its files from db 
+        if towercrane file exists, gets the project and its files from db 
         and pretty prints them
         """
         
-        if "paperclip" not in os.listdir(project_dir):
-            print('(!) No project has been initialized yet.\n => you can use "paperclip init" to start a new project.\n => Or it might be because you have lost the "paperclip config file" ')
+        if "towercrane" not in os.listdir(project_dir):
+            print('(!) No project has been initialized yet.\n => you can use "towercrane init" to start a new project.\n => Or it might be because you have lost the "towercrane config file" ')
         
-        elif "paperclip" in os.listdir(project_dir):
-            PaperclipConfig = read_config(project_dir)
-            project, files = self.db.get_project(PaperclipConfig["projectkey"])
+        elif "towercrane" in os.listdir(project_dir):
+            TowercraneConfig = read_config(project_dir)
+            project, files = self.db.get_project(TowercraneConfig["projectkey"])
             files_table = tabulate([[file[1],file[0],file[2],file[-1]] for file in files], headers=['File Name', 'File Key','Size','state'], tablefmt='orgtbl')
-            print(f'project:"{PaperclipConfig["project_name"]}" with projectkey: "{PaperclipConfig["projectkey"]}"\nFiles added to the project: \n\n{files_table}')
+            print(f'project:"{TowercraneConfig["project_name"]}" with projectkey: "{TowercraneConfig["projectkey"]}"\nFiles added to the project: \n\n{files_table}')
             
             
 

@@ -8,13 +8,13 @@ import time
 import sqlite3
 
 
-from tools import Tools
-from config import Config
-from progress import ProgressPercentage
+from .tools import Tools
+from .config import Config
+from .progress import ProgressPercentage
 
         
             
-class Paperclip():
+class TowerCrane():
     def __init__(self):
         """
         Make an instance of our cloud, DB, and tools.
@@ -31,14 +31,14 @@ class Paperclip():
                 
     def config(self):
         """
-        starting config prompt for setting up the paperclip DB and Cloud
+        starting config prompt for setting up the towercrane DB and Cloud
         """
-        self._config.config_paperclip()
+        self._config.config_towercrane()
         
         
     def state(self):
         """
-        state of Paperclip for current directory
+        state of Towercrane for current directory
         """
         self.tools.state(self.project_dir)
         
@@ -96,7 +96,7 @@ class Paperclip():
 
  
 if __name__ == "__main__":
-    fire.Fire(Paperclip)
+    fire.Fire(TowerCrane)
 
 
     

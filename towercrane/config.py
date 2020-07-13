@@ -1,7 +1,7 @@
-from cloud import S3
-from db import DB
-
-bucket_name =  "paperclip-projects"
+from .cloud import S3
+from .db import DB
+import time
+bucket_name =  "towercrane-projects"
 
 
 class Config():
@@ -12,9 +12,9 @@ class Config():
         self.set_mother_config = self.db.set_mother_config
         
 
-    def config_paperclip(self):
+    def config_towercrane(self):
         """
-        Pormpt for setting up PaperClip
+        Pormpt for setting up TowerCrane
         
         It asks for your cloud of choice
         and if you have already done the authentication.
@@ -44,7 +44,7 @@ class Config():
             cloud_client = S3()
             cloud_projects = cloud_client.list_cloud_projects()
             if bucket_name not in cloud_projects:
-                print("There is no paperclip-projects bucket, creating one ...")
+                print("There is no towercrane-projects bucket, creating one ...")
                 cloud_client.create_cloud_project(bucket_name)
                 print("created: ",bucket_name)           
             return cloud_client

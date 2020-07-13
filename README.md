@@ -1,16 +1,16 @@
-# paperclip
+# towercrane
 
 ```python
 
-paperclip config 
+towercrane config 
 
-paperclip scan 
-paperclip state
+towercrane scan 
+towercrane state
 
-paperclip init 
-paperclip upload 
-paperclip remove 
-paperclip download
+towercrane init 
+towercrane upload 
+towercrane remove 
+towercrane download
   
  ```
 
