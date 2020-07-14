@@ -7,7 +7,6 @@ import pprint
 import time
 import sqlite3
 
-
 from .tools import Tools
 from .config import Config
 from .progress import ProgressPercentage
@@ -20,12 +19,12 @@ class TowerCrane():
         Make an instance of our cloud, DB, and tools.
         Which we then use in our commands.
         """
-        self.project_name = "beer"  # os.path.basename(os.getcwd())
-        self.project_dir = "/Users/taha/T/ds/projects/beer"  #os.getcwd() 
+        self.project_name = os.path.basename(os.getcwd())
+        self.project_dir = os.getcwd() 
         
         self._config  = Config()
-        self.s3 = self._config.get_cloud_client()
         self.db = self._config.get_db_client()
+        self.s3 = self._config.get_cloud_client()
         self.tools = Tools(cloud_client=self.s3,db=self.db)
         
                 
@@ -94,9 +93,19 @@ class TowerCrane():
         self.db.change_state_file(queue_files,'local_and_cloud')
 
 
+def commands(obj):
+    if obj == "config":
+        Config().config_towercrane()
+    else:
+        return TowerCrane()
+
+
+def main():
+    fire.Fire(commands)
+    
  
 if __name__ == "__main__":
-    fire.Fire(TowerCrane)
+    main()
 
 
     

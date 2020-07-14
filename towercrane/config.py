@@ -1,6 +1,7 @@
 from .cloud import S3
 from .db import DB
 import time
+import sys
 bucket_name =  "towercrane-projects"
 
 
@@ -40,7 +41,10 @@ class Config():
     def get_cloud_client(self):
         # first read from DB and see what cloud we should be using 
         cloudtype = self.mother_config["cloudtype"] 
-        if cloudtype == "aws" :
+        if cloudtype == "notset" :
+            sys.exit('Cloud is not configured in towercrane.\nplease use "towercrane config" first. ')
+        
+        elif cloudtype == "aws" :
             cloud_client = S3()
             cloud_projects = cloud_client.list_cloud_projects()
             if bucket_name not in cloud_projects:

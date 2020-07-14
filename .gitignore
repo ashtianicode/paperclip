@@ -5,5 +5,5 @@ dist/
 build/
 .vscode/
 .venv/
-notes.txt
+notes.md
 
