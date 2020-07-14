@@ -22,12 +22,16 @@ class Config():
         ... Other Questions To Be Added
         """
         
-        cloudtype = input("what is your choice for cloud storage? aws or gcloud") or "aws"
-        print(cloudtype)
+        cloudtype = input("what is your choice for cloud storage? aws or gcloud: ") or "aws"
         self.set_mother_config("cloudtype",cloudtype)
-        auth_done = input("Have you authenticated your aws yourself? (y/n)") or "n"
-        if not auth_done == "y":
-            print("Here is a link to how you shoud do it.")
+        
+        
+        auth_done = input("Have you authenticated your aws yourself? (y/n): ") or "n"
+        if auth_done in ["n","N","no","NO"] :
+            print("Here is a link to a simple guide for configuring your aws: \n\nhttps://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html#cli-configure-quickstart-config")
+        elif auth_done in ["y","Y","yes","YES"] :
+            print(f" Checking if your {cloudtype} is Authenticated properly ...")
+            # self.s3_client.list_buckets() TODO
             
         
         
@@ -39,7 +43,7 @@ class Config():
     get_db_client:     returns db client
     """
     def get_cloud_client(self):
-        # first read from DB and see what cloud we should be using 
+        # first read from DB and see what cloud to use
         cloudtype = self.mother_config["cloudtype"] 
         if cloudtype == "notset" :
             sys.exit('Cloud is not configured in towercrane.\nplease use "towercrane config" first. ')
@@ -60,7 +64,7 @@ class Config():
     
     
     def get_db_client(self):
-        # in case you need to do any testing with tables in DB do it here.
+        # we can run our db test here
         return self.db
 
     

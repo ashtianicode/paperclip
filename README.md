@@ -5,7 +5,7 @@
 towercrane config 
 
 towercrane scan 
-towercrane state
+towercrane status
 
 towercrane init 
 towercrane upload 
@@ -15,7 +15,7 @@ towercrane download
  ```
 
 
-## State lifecycle of a project 
+## Status lifecycle of a project 
 
 local
 cloud

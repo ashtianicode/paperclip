@@ -35,11 +35,11 @@ class TowerCrane():
         self._config.config_towercrane()
         
         
-    def state(self):
+    def status(self):
         """
-        state of Towercrane for current directory
+        status of Towercrane for current directory
         """
-        self.tools.state(self.project_dir)
+        self.tools.status(self.project_dir)
         
         
     def scan(self):
@@ -59,49 +59,51 @@ class TowerCrane():
 
     def upload(self):   
         """
-        Uploading
+        Uploading the added files
         """
-        queue_files = self.tools.load_queue(self.project_name,state="upload")
+        queue_files = self.tools.load_queue(self.project_name,status="upload")
         self.tools.upload(self.project_name,self.project_dir,queue_files)
-        self.db.change_state_file(queue_files,'uploaded')
-        self.db.change_state_file(queue_files,'local_and_cloud')
+        self.db.change_status_file(queue_files,'uploaded')
+        self.db.change_status_file(queue_files,'local_and_cloud')
         #TODO  check with aws if they're uploaded completely
         
 
     def remove(self):
         """
-        Removing
+        Removing the uploaded files from local
         """
-        queue_files = self.tools.load_queue(self.project_name,state="local_and_cloud")
-        self.db.change_state_file(queue_files,'remove')
-        queue_files = self.tools.load_queue(self.project_name,state="remove")
+        queue_files = self.tools.load_queue(self.project_name,status="local_and_cloud")
+        self.db.change_status_file(queue_files,'remove')
+        queue_files = self.tools.load_queue(self.project_name,status="remove")
         self.tools.remove(queue_files,self.project_name,self.project_dir)
-        self.db.change_state_file(queue_files,"removed")
-        self.db.change_state_file(queue_files,'cloud')
+        self.db.change_status_file(queue_files,"removed")
+        self.db.change_status_file(queue_files,'cloud')
         # TODO check if they're removed completely with a os.listdir()
+    
+    def makepublic(self):
+            """
+            Make the Project public
+            """
+            self.tools.make_project_public(self.project_dir,self.project_name)
 
-
+    
     def download(self):
         """
-        Downloading
+        Downloading the files from cloud and putting them back where they where
         """
-        
-        queue_files = self.tools.load_queue(self.project_name,state="cloud")
-        self.db.change_state_file(queue_files,'download')
-        queue_files = self.tools.load_queue(self.project_name,state="download")
+        queue_files = self.tools.load_queue(self.project_name,status="cloud")
+        self.db.change_status_file(queue_files,'download')
+        queue_files = self.tools.load_queue(self.project_name,status="download")
         self.tools.download(self.project_name,self.project_dir,queue_files)
-        self.db.change_state_file(queue_files,'local_and_cloud')
+        self.db.change_status_file(queue_files,'local_and_cloud')
 
-
-def commands(obj):
-    if obj == "config":
-        Config().config_towercrane()
-    else:
-        return TowerCrane()
 
 
 def main():
-    fire.Fire(commands)
+    if len(sys.argv)>1 and sys.argv[1] == "config":
+        Config().config_towercrane()
+    else:
+        fire.Fire(TowerCrane)
     
  
 if __name__ == "__main__":

@@ -13,7 +13,6 @@ class S3():
     """
     
     def __init__(self,region="us-east-1"):
-        # self.aws_auth()
         self.region = region
         try:
             self.s3_client = boto3.client('s3', region_name=region)
@@ -22,19 +21,7 @@ class S3():
             
         except ClientError as e:
             if e.response['Error']['Code'] == 'ExpiredToken':
-                sys.exit("Cannot connect to AWS S3 client. AWS Token is expired.")           
-        # if not self.check_client(self.s3_client):
-        #     print("Can not connect to AWS S3 client. Token might be expired.")
-        #     def aws_auth(self):
-        #         os.system("cat aws.cred > ~/.aws/credentials")
-
-    # def check_client(self,client):
-        # print(hasattr(client,'__class__'))
-        # if hasattr(client,'__class__'):
-        #     return True
-        # else:
-        #     return False
-        
+                sys.exit("Cannot connect to AWS S3 client. AWS Token is expired.")                   
 
     def list_buckets(self):
         response = self.s3_client.list_buckets()
@@ -50,10 +37,13 @@ class S3():
         
         
     def get_public_url(self,bucket_name,object_name):
-        response = self.s3_client.get_bucket_location(Bucket=bucket_name)
+        # response = self.s3_client.get_bucket_location(Bucket=bucket_name)
         # bucket_location = response['LocationConstraint'] if response['LocationConstraint'] else "us-east-1"
-        object_url = f"https://{bucket_name}.s3.amazonaws.com/{object_name}" # for now i don't care about the other regions. TODO
+        
+        self.s3_client.put_object_acl(ACL="public-read",Bucket=bucket_name,Key=object_name)        
+        object_url = f"https://{bucket_name}.s3.amazonaws.com/{object_name}" # whats the pattern for other regions? TODO
         return object_url
+        
         
     def create_bucket(self,bucket_name):
         try:
@@ -69,16 +59,12 @@ class S3():
         return True
     
     
-    def upload_file(self,bucket_name,abspath,file_name,object_name):
+    def upload_file(self,bucket_name,abspath,object_name):
         try:
             with open(abspath, "rb") as f:
                 response = self.s3_client.upload_fileobj(f,bucket_name, object_name,
-                                                         Callback=ProgressPercentage(file_name+".zip",size=float(getsize(abspath)))
-                                                            )
-                # self.s3_client.put_object_acl(Bucket=bucket_name,Key=object_name)
-                # bucket.Acl().put(ACL='public-read')
-                # obj.Acl().put(ACL='public-read')
-            
+                                                         Callback=ProgressPercentage(object_name,size=float(getsize(abspath)))
+                                                            )            
                 return True, response
             
         except ClientError as e:

@@ -57,7 +57,7 @@ class Tools():
     
     init_project:   initializing project config, and storage in the cloud.
     scan:           scanning local files               
-    add:            adding files to DB with local state
+    add:            adding files to DB with local status
     """
     def init_project(self,project_name,project_dir):
         """
@@ -69,7 +69,7 @@ class Tools():
             print(f'Initializing project:"{project_name}" with projectkey: "{projectkey}" ')
             self.TowercraneConfig = {"project_name":project_name,
                                     "projectkey":projectkey,
-                                    "publicurl":""
+                                    "publicurl":"private_project"
                                     }
             write_config(project_dir,self.TowercraneConfig)
             project_insert_report = self.db.create_project(project_name,project_dir,projectkey)
@@ -117,18 +117,18 @@ class Tools():
     Queue Tools:
     These are the tools for running tasks on a loaded queue.
     
-    load_queue: loads a queue using a state and db tools
-    upload:     loads a queue of fiels with upload state
+    load_queue: loads a queue using a status and db tools
+    upload:     loads a queue of fiels with upload status
     
     """
-    def load_queue(self,project_name,state):
-        files_with_state = self.db.get_files_with_state(project_name,state)
-        return files_with_state
+    def load_queue(self,project_name,status):
+        files_with_status = self.db.get_files_with_status(project_name,status)
+        return files_with_status
 
 
-    def _zip(self,project_name,project_dir,filekey_abspaths):
+    def _zip(self,object_name,project_dir,filekey_abspaths):
         os.chdir(project_dir)
-        zipObj = zipfile.ZipFile(f"{project_name}.zip","w")
+        zipObj = zipfile.ZipFile(object_name,"w")
         for filekey,abspath in filekey_abspaths:
             print("added to zip: ",filekey, "  ",abspath)
             zipObj.write(abspath,arcname=f"{filekey}_" +os.path.basename(abspath)+".original")
@@ -136,36 +136,29 @@ class Tools():
     
     
     def upload(self,project_name,project_dir,queue_files):
-        zippath = os.path.join(project_dir,project_name+".zip")
-        object_name = project_name+".zip"
-        # bucket_name = project_name + "-project-datasets"  # remove
-        
-        if project_name+".zip" in os.listdir(project_dir):
-            os.remove(os.path.join(project_dir,project_name+".zip"))    
+        object_name = project_name+"-project-towercrane-files.zip"
+        zippath = os.path.join(project_dir,object_name)
+        if object_name in os.listdir(project_dir):
+            os.remove(os.path.join(project_dir,object_name))    
         
         filekey_abspaths = [(f[0],f[3]) for f in queue_files]
-        self._zip(project_name,project_dir,filekey_abspaths)
+        self._zip(object_name,project_dir,filekey_abspaths)
         print("Uploading zip: ",zippath)
-        self.cloud_client.upload_file(bucket_name,zippath,project_name,object_name)
+        self.cloud_client.upload_file(bucket_name,zippath,object_name)
         
-        
+
+    
+    def make_project_public(self,project_dir,project_name):
+        object_name = project_name+"-project-towercrane-files.zip"
         # get public url of zip file, and then read and write the public url to towercrane file
         publicurl = self.cloud_client.get_public_url(bucket_name,object_name)
         self.TowercraneConfig = read_config(project_dir)
         self.TowercraneConfig["publicurl"] = publicurl 
         write_config(project_dir,self.TowercraneConfig)
-        print(self.TowercraneConfig["publicurl"])
         
+            
         
-        
-        # def write_config(project_dir,TowercraneConfig):
-        # with open(os.path.join(project_dir,"towercrane"),"w") as f:
-        #     f.write("project_name:"+TowercraneConfig["project_name"]+"\n"+
-        #             "projectkey:"+TowercraneConfig["projectkey"]+"\n"+
-        #             "publicurl:"+TowercraneConfig["publicurl"]
-        #             )
-
-
+    
     
     def remove(self,queue_files,project_name,project_dir):
         filekey_abspaths = [(f[0],f[3]) for f in queue_files]
@@ -183,23 +176,24 @@ class Tools():
                     print("no such file to remove")
                 else:
                     raise 
-        os.remove(os.path.join(project_dir,f"{project_name}.zip"))
+        zipfile_name = project_name+"-project-towercrane-files.zip"
+        if zipfile_name in os.listdir(project_dir):
+             os.remove(os.path.join(project_dir,zipfile_name))
+        
     
     
     def download(self,project_name,project_dir,queue_files):
-        # first download the zip
-        # bucket_name = project_name + "-project-datasets"  # remove
-        object_name = project_name + ".zip"
+        object_name = project_name+"-project-towercrane-files.zip"
         print(f"Downloading {object_name} from Bucket \"{bucket_name}\"")
         self.cloud_client.download_file(bucket_name,object_name,project_dir)
     
         #distribute the files to their original spots
-        unzip_dir = f"{project_name}_unzip"
+        unzip_dir = f"{project_name}_towercrane_unzip"
         if unzip_dir in os.listdir(project_dir):
             shutil.rmtree(os.path.join(project_dir,unzip_dir))
             print("removed :",unzip_dir)
         
-        zippath = os.path.join(project_dir,f'{project_name}.zip')
+        zippath = os.path.join(project_dir,object_name)
         with zipfile.ZipFile(zippath , 'r') as zipObj:
             os.chdir(project_dir)
             os.mkdir(unzip_dir)
@@ -227,7 +221,7 @@ class Tools():
         os.remove(os.path.join(project_dir,object_name))
             
     
-    def state(self,project_dir):
+    def status(self,project_dir):
         """
         if towercrane file exists, gets the project and its files from db 
         and pretty prints them
@@ -239,7 +233,7 @@ class Tools():
         elif "towercrane" in os.listdir(project_dir):
             TowercraneConfig = read_config(project_dir)
             project, files = self.db.get_project(TowercraneConfig["projectkey"])
-            files_table = tabulate([[file[1],file[0],file[2],file[-1]] for file in files], headers=['File Name', 'File Key','Size','state'], tablefmt='orgtbl')
+            files_table = tabulate([[file[1],file[0],file[2],file[-1]] for file in files], headers=['File Name', 'File Key','Size','status'], tablefmt='orgtbl')
             print(f'project:"{TowercraneConfig["project_name"]}" with projectkey: "{TowercraneConfig["projectkey"]}"\nFiles added to the project: \n\n{files_table}')
             
             

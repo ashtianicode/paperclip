@@ -45,7 +45,7 @@ class DB():
                                                     objectname text,
                                                     projectname text,
                                                     projectkey text ,
-                                                    state text)
+                                                    status text)
                                                            
                             """)
             self.conn.commit()
@@ -55,7 +55,7 @@ class DB():
                                                     projectname text,
                                                     dirpath text,
                                                     zippath text,
-                                                    state text)
+                                                    status text)
                                                            
                             """)
             self.conn.commit()
@@ -97,7 +97,7 @@ class DB():
 
     def create_project(self,project_name,project_dir,projectkey):
         if not self.check_existance(project_dir,"dirpath","towercrane_projects"):
-            self.c.execute(f"""INSERT INTO towercrane_projects (projectkey,projectname,dirpath,zippath,state) 
+            self.c.execute(f"""INSERT INTO towercrane_projects (projectkey,projectname,dirpath,zippath,status) 
                                VALUES (\"{projectkey}\", \"{project_name}\","{project_dir}","", \"only_local\" )
                             """)
             self.conn.commit()
@@ -110,9 +110,9 @@ class DB():
         # check if file exists
         if not self.check_existance(file_meta["abspath"],"abspath","towercrane_files"):
             object_name = project_name
-            state = "upload" # "only_local"
-            self.c.execute(f"""INSERT INTO towercrane_files (filekey,filename,filesize,abspath,dirpath,objectname,projectname,projectkey,state) 
-                               VALUES ('{filekey}','{file_meta["filename"]}','{file_meta["filesize"]}','{file_meta["abspath"]}','{file_meta["dirpath"]}', '{object_name}' ,'{project_name}', '{projectkey}','{state}' )
+            status = "upload" # "only_local"
+            self.c.execute(f"""INSERT INTO towercrane_files (filekey,filename,filesize,abspath,dirpath,objectname,projectname,projectkey,status) 
+                               VALUES ('{filekey}','{file_meta["filename"]}','{file_meta["filesize"]}','{file_meta["abspath"]}','{file_meta["dirpath"]}', '{object_name}' ,'{project_name}', '{projectkey}','{status}' )
                             """)
             self.conn.commit()
             return f"{file_meta['filename']} inserted into DB"
@@ -124,7 +124,7 @@ class DB():
     
     
     """
-    State Management DB Tools
+    Status Management DB Tools
     """
     
     def get_project(self,projectkey):
@@ -133,16 +133,16 @@ class DB():
         return project , files
     
     
-    def get_files_with_state(self,project_name,state):
-        results = self.c.execute(f"SELECT * from towercrane_files WHERE state='{state}' AND projectname='{project_name}' ").fetchall()
+    def get_files_with_status(self,project_name,status):
+        results = self.c.execute(f"SELECT * from towercrane_files WHERE status='{status}' AND projectname='{project_name}' ").fetchall()
         return results
         
-    def change_state_file(self,files,state):
+    def change_status_file(self,files,status):
         filekeys = [f[0] for f in files]
         for filekey in filekeys:
             results = self.c.execute(f"""
                                         UPDATE towercrane_files 
-                                        SET state="{state}"
+                                        SET status="{status}"
                                         WHERE filekey = "{filekey}" 
                                     """)
 
