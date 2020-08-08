@@ -38,9 +38,10 @@ towercrane download
   
 ```
 
-![Alt Text](https://github.com/ashtianicode/towercrane/blob/master/docs/images/ezgif.com-video-to-gif.gif)
+![Alt Text](https://github.com/ashtianicode/towercrane/blob/master/docs/images/towercrane.gif)
 
 Your files are zipped locally, and uploaded as objects in a single bucket "towercrane-projects"
+
 ![Alt Text](https://github.com/ashtianicode/towercrane/blob/master/docs/images/aws.png)
 
 ![Alt Text](https://github.com/ashtianicode/towercrane/blob/master/docs/images/gcloud.png)
