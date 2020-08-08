@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 HERE = pathlib.Path(__file__).parent
 
-VERSION = '1.0'
+VERSION = '1.1'
 PACKAGE_NAME = 'towercrane'
 AUTHOR = 'Taha'
 AUTHOR_EMAIL = 'taha.m.ashtiani@gmail.com'
@@ -18,7 +18,8 @@ INSTALL_REQUIRES = [
       'fire',
       'boto3',
       'db-sqlite3',
-      'zipfile36'
+      'zipfile36',
+      'tabulate'
       
 ]
 

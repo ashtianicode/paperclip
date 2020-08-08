@@ -6,4 +6,4 @@ build/
 .vscode/
 .venv/
 notes.md
-
+*.json

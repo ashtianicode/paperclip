@@ -24,8 +24,8 @@ class TowerCrane():
         
         self._config  = Config()
         self.db = self._config.get_db_client()
-        self.s3 = self._config.get_cloud_client()
-        self.tools = Tools(cloud_client=self.s3,db=self.db)
+        cloud_client = self._config.get_cloud_client()
+        self.tools = Tools(cloud_client=cloud_client,db=self.db)
         
                 
     def config(self):

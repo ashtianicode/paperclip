@@ -1,19 +1,14 @@
 # TowerCrane
 
-towercrane is an easy to use commandline tool for keeping your large project files on the cloud.
-It simply searches for specific file extensions in your project and let your simply upload and downlaod them between your local and cloud.
-It's designed to work with AWS S3, Google Cloud Storage and other storage services in the future.
-towercrane is desined for Linux and macOS. Support for windows is in the backlog.
+Towercrane is an easy to use command line tool for keeping your large project files on the cloud. It walks in your project dir, searching for typical file extensions of large files( csv, xlsx, mp4, ... ). You can have your large files added to the local DB and then simply move them between your local and cloud. It's designed to work with AWS S3, Google Cloud Storage, and other storage services in the future. towercrane is designed and tested for Linux and macOS.
 
-I used to run out of space on my laptop all time. very often it was because of large datasets or other formats of project files, which I didn't want to remove from my local. I wrote towecrane and decided to make it open source for other people to contribute to.
-
-Cheers
+I used to run out of space on my laptop all the time. Very often it was because of large datasets, video files or other large files in a few of my projects. I found it very frustrating to remove them from my local, only to search for and download them every single time I wanted to run a project again. I wrote towecrane and decided to make it open source for others to contribute to.
 
 ## Quick start
 
+You can Install towercrane using pip. when running config there is a choice for using either AWS S3 or Google Cloud Storage. You need to have your AWS or Google Cloud CLI authenticated. 
 
-you can install towercrane on using pip.
-when running config there is a choice for using either AWS S3 or Google Cloud Storage. and you need have their cli tool authnticated. look for the links at the bottom.
+(there are links for the authentication guides at the bottom)
 
 ```bash
 
@@ -27,11 +22,8 @@ towercrane config
 ## Basic Usage
 
 ### towercrane commands
-
-```bash
-
 Start by moving to the root of your project
-
+```bash
 cd my_project
 
 towercrane scan 
@@ -59,4 +51,11 @@ removed
 download
 
 
+Your files are zippied locally, and uploaded as objects in a single bucket "towercrane-projects"
 
+
+## CLI Authentication Guides
+
+**AWS**: [https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html#cli-configure-quickstart-config](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html#cli-configure-quickstart-config)
+
+**Google Cloud**: [https://cloud.google.com/docs/authentication/getting-started](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html#cli-configure-quickstart-config)

@@ -1,4 +1,4 @@
-from .cloud import S3
+from .cloud import S3 , GS
 from .db import DB
 import time
 import sys
@@ -21,17 +21,18 @@ class Config():
         and if you have already done the authentication.
         ... Other Questions To Be Added
         """
+        cloudtype = ""
+        while cloudtype not in ["aws","gcloud"]:
+            cloudtype = input("what is your choice for cloud storage? aws or gcloud: ") or "aws"
         
-        cloudtype = input("what is your choice for cloud storage? aws or gcloud: ") or "aws"
         self.set_mother_config("cloudtype",cloudtype)
-        
-        
-        auth_done = input("Have you authenticated your aws yourself? (y/n): ") or "n"
+        auth_done = input(f"Have you authenticated your {cloudtype}? (y/n): ") or "n"
         if auth_done in ["n","N","no","NO"] :
-            print("Here is a link to a simple guide for configuring your aws: \n\nhttps://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html#cli-configure-quickstart-config")
+            print("AWS Authentication: https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html#cli-configure-quickstart-config")
+            print("Google Cloud Authentication: https://cloud.google.com/docs/authentication/getting-started")
         elif auth_done in ["y","Y","yes","YES"] :
-            print(f" Checking if your {cloudtype} is Authenticated properly ...")
-            # self.s3_client.list_buckets() TODO
+            print(f"Start with 'towercrane scan' ")
+            
             
         
         
@@ -52,15 +53,19 @@ class Config():
             cloud_client = S3()
             cloud_projects = cloud_client.list_cloud_projects()
             if bucket_name not in cloud_projects:
-                print("There is no towercrane-projects bucket, creating one ...")
+                print("There is no towercrane-projects bucket on AWS, creating one ...")
                 cloud_client.create_cloud_project(bucket_name)
                 print("created: ",bucket_name)           
             return cloud_client
             
         elif cloudtype == "gcloud" :
-            pass
-            # cloud_client = Gcloud()
-            # return cloud_client
+            cloud_client = GS()
+            cloud_projects = cloud_client.list_cloud_projects()
+            if bucket_name not in cloud_projects:
+                print("There is no towercrane-projects bucket on GCP, creating one ...")
+                cloud_client.create_cloud_project(bucket_name)
+                print("created: ",bucket_name)           
+            return cloud_client
     
     
     def get_db_client(self):
